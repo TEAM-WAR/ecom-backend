@@ -3,6 +3,7 @@ import productRoutes from './productRoutes.js';
 import categoryRoutes from './categoryRoutes.js';
 import uploadRoutes from './uploadRoutes.js';
 import transactionRoutes from './transactionRoutes.js';
+import colisRoutes from './colisRoutes.js';
 
 const router = express.Router();
 
@@ -17,5 +18,8 @@ router.use('/upload', uploadRoutes);
 
 // Routes pour les transactions
 router.use('/transactions', transactionRoutes);
+
+// Routes pour les colis
+router.use('/colis', colisRoutes);
 
 export default router; 
