@@ -1,0 +1,78 @@
+name: Deploy Backend
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'ecom-backend/**'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      
+    - name: Login to Docker Hub (optional)
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+      # Uncomment if you want to push to Docker Hub
+      # if: secrets.DOCKER_USERNAME != ''
+      
+    - name: Build and deploy to server
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USERNAME }}
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        port: ${{ secrets.SERVER_PORT }}
+        script: |
+          # Naviguer vers le répertoire du backend
+          cd /root/ecom/ecom-backend
+          
+          # Arrêter les services existants
+          echo "Arrêt des services existants..."
+          docker-compose down || true
+          
+          # Supprimer l'ancienne image
+          echo "Suppression de l'ancienne image..."
+          docker rmi ecom-backend_app:latest || true
+          
+          # Mettre à jour le code
+          echo "Mise à jour du code..."
+          git pull origin main
+          
+          # Reconstruire l'image
+          echo "Construction de la nouvelle image..."
+          docker-compose build --no-cache
+          
+          # Démarrer les services
+          echo "Démarrage des services..."
+          docker-compose up -d
+          
+          # Attendre que le service soit prêt
+          echo "Attente du démarrage du service..."
+          sleep 30
+          
+          # Vérifier le statut
+          echo "Vérification du statut..."
+          if curl -f http://localhost:5000 > /dev/null 2>&1; then
+            echo "✅ Déploiement réussi - API accessible sur http://localhost:5000"
+          else
+            echo "❌ Erreur - API non accessible"
+            docker-compose logs
+            exit 1
+          fi
+          
+          # Nettoyer les images non utilisées
+          echo "Nettoyage des images non utilisées..."
+          docker image prune -f
+          
+          echo "🎉 Déploiement du backend terminé avec succès!" 
