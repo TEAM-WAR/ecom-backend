@@ -17,7 +17,7 @@ app.use(express.json());
 // Middleware CORS pour permettre les requêtes depuis le frontend
 app.use(
   cors({
-    origin: "http://localhost:3000",
+      origin:[ "http://localhost:3000","http://199.188.203.140"],
     credentials: true,
   })
 );
