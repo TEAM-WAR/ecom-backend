@@ -6,7 +6,10 @@ const colisSchema = new mongoose.Schema(
       type: String,
       required: [true, "Le nom du destinataire est requis"],
       trim: true,
-      maxlength: [100, "Le nom du destinataire ne peut pas dépasser 100 caractères"],
+      maxlength: [
+        100,
+        "Le nom du destinataire ne peut pas dépasser 100 caractères",
+      ],
     },
     adresse_destinataire: {
       type: String,
@@ -18,12 +21,19 @@ const colisSchema = new mongoose.Schema(
       type: String,
       required: [true, "Le téléphone du destinataire est requis"],
       trim: true,
-      maxlength: [20, "Le numéro de téléphone ne peut pas dépasser 20 caractères"],
+      maxlength: [
+        20,
+        "Le numéro de téléphone ne peut pas dépasser 20 caractères",
+      ],
     },
     cheque: {
       type: String,
       default: null,
       trim: true,
+    },
+    date_retour: {
+      type: Date,
+      default: null,
     },
     facture: {
       type: String,
@@ -77,7 +87,10 @@ const colisSchema = new mongoose.Schema(
       type: String,
       required: [true, "La description de l'état est requise"],
       trim: true,
-      maxlength: [100, "La description de l'état ne peut pas dépasser 100 caractères"],
+      maxlength: [
+        100,
+        "La description de l'état ne peut pas dépasser 100 caractères",
+      ],
     },
     // Champs additionnels pour la gestion
     date_creation: {
@@ -90,14 +103,31 @@ const colisSchema = new mongoose.Schema(
     },
     statut: {
       type: String,
-      enum: ["en_attente", "en_transit", "livre", "retourne", "annule"],
+      enum: ["en_attente", "en_cours", "retourne"],
       default: "en_attente",
     },
     commentaires: {
       type: String,
       default: "",
-      maxlength: [500, "Les commentaires ne peuvent pas dépasser 500 caractères"],
+      maxlength: [
+        500,
+        "Les commentaires ne peuvent pas dépasser 500 caractères",
+      ],
     },
+    Prodcuts: [
+      {
+        prodcut_id: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Product",
+          required: true,
+        },
+        quantity: {
+          type: Number,
+          required: [true, "La quantité du produit est requise"],
+          min: [1, "La quantité doit être au moins 1"],
+        },
+      },
+    ],
   },
   {
     timestamps: true, // Ajoute automatiquement createdAt et updatedAt
@@ -114,26 +144,26 @@ colisSchema.index({ date_creation: -1 });
 colisSchema.index({ facture: 1 });
 
 // Méthode pour mettre à jour la date de dernière opération
-colisSchema.methods.updateLastOperation = function() {
+colisSchema.methods.updateLastOperation = function () {
   this.last_operation_date = new Date();
   this.date_modification = new Date();
   return this.save();
 };
 
 // Méthode statique pour rechercher par code-barres
-colisSchema.statics.findByCodeBarre = function(codeBarre) {
+colisSchema.statics.findByCodeBarre = function (codeBarre) {
   return this.findOne({ code_barre: codeBarre });
 };
 
 // Méthode statique pour rechercher par destinataire
-colisSchema.statics.findByDestinataire = function(nomDestinataire) {
-  return this.find({ 
-    nom_destinataire: { $regex: nomDestinataire, $options: 'i' } 
+colisSchema.statics.findByDestinataire = function (nomDestinataire) {
+  return this.find({
+    nom_destinataire: { $regex: nomDestinataire, $options: "i" },
   });
 };
 
 // Middleware pre-save pour mettre à jour la date de modification
-colisSchema.pre('save', function(next) {
+colisSchema.pre("save", function (next) {
   this.date_modification = new Date();
   next();
 });

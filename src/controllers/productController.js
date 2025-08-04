@@ -22,7 +22,7 @@ export const getAllProducts = async (req, res) => {
       query.inStock = inStock === 'true';
     }
 
-    const products = await Product.find(query).sort({ createdAt: -1 });
+    const products = await Product.find(query).populate('category').sort({ createdAt: -1 });
     res.json({
       success: true,
       count: products.length,
@@ -40,7 +40,7 @@ export const getAllProducts = async (req, res) => {
 // Obtenir un produit par ID
 export const getProductById = async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id);
+    const product = await Product.findById(req.params.id).populate('category');
     if (!product) {
       return res.status(404).json({
         success: false,
