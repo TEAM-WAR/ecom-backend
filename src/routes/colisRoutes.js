@@ -3,13 +3,16 @@ import {
   getAllColis, 
   getColisById, 
   getColisByCodeBarre,
-  createColis, 
+  detectColis, 
   updateColis, 
   deleteColis,
   updateColisStatus,
   searchColisByDestinataire,
   getColisStats,
-  createMultipleColis
+  createMultipleColis,
+  createColis,
+  markAsReturned,
+  updatePendingColisStatus
 } from '../controllers/colisController.js';
 
 const router = express.Router();
@@ -18,7 +21,8 @@ const router = express.Router();
 router.get('/', getAllColis);
 router.get('/stats', getColisStats);
 router.get('/:id', getColisById);
-router.post('/', createColis);
+router.post('/', detectColis);
+router.post('/confirm', createColis);
 router.post('/batch', createMultipleColis);
 router.put('/:id', updateColis);
 router.delete('/:id', deleteColis);
@@ -27,5 +31,7 @@ router.delete('/:id', deleteColis);
 router.get('/code-barre/:codeBarre', getColisByCodeBarre);
 router.get('/destinataire/:nomDestinataire', searchColisByDestinataire);
 router.patch('/:id/status', updateColisStatus);
+router.patch('/:id/mark-as-returned', markAsReturned);
+router.patch('/update-pending-status', updatePendingColisStatus);
 
 export default router; 
