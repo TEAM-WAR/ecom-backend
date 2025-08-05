@@ -33,7 +33,7 @@ app.get("/", (req, res) => {
   res.json({ message: "API E-commerce Backend - Fonctionnel !" });
 });
 
-// Connexion MongoDB
+
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
